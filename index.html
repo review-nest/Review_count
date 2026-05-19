@@ -368,6 +368,7 @@
         </div>
 
         <div class="input-box">
+
           <label>Total Capacity</label>
 
           <input type="range" min="100" max="10000" value="500" id="capacityRange">
@@ -445,102 +446,246 @@
 
   <script>
 
-    let clients = [];
-    let capacity = 500;
+    // =========================
+    // LOCAL STORAGE DATA
+    // =========================
 
-    const capacityRange = document.getElementById("capacityRange");
+    let clients =
+      JSON.parse(
+        localStorage.getItem("clients")
+      ) || [];
 
-    capacityRange.addEventListener("input", function () {
+    let capacity =
+      Number(
+        localStorage.getItem("capacity")
+      ) || 500;
 
-      capacity = Number(this.value);
+    // =========================
+    // ELEMENTS
+    // =========================
 
-      document.getElementById("rangeValue").innerText = capacity;
-      document.getElementById("capacityText").innerText = capacity;
+    const capacityRange =
+      document.getElementById(
+        "capacityRange"
+      );
 
-      updateDashboard();
+    const rangeValue =
+      document.getElementById(
+        "rangeValue"
+      );
 
-    });
+    const capacityText =
+      document.getElementById(
+        "capacityText"
+      );
+
+    // =========================
+    // INITIAL LOAD
+    // =========================
+
+    capacityRange.value = capacity;
+
+    rangeValue.innerText = capacity;
+
+    capacityText.innerText = capacity;
+
+    renderClients();
+
+    updateDashboard();
+
+    // =========================
+    // SAVE DATA
+    // =========================
+
+    function saveData() {
+
+      localStorage.setItem(
+        "clients",
+        JSON.stringify(clients)
+      );
+
+      localStorage.setItem(
+        "capacity",
+        capacity
+      );
+
+    }
+
+    // =========================
+    // RANGE UPDATE
+    // =========================
+
+    capacityRange.addEventListener(
+      "input",
+      function () {
+
+        capacity =
+          Number(this.value);
+
+        rangeValue.innerText =
+          capacity;
+
+        capacityText.innerText =
+          capacity;
+
+        saveData();
+
+        updateDashboard();
+
+      }
+    );
+
+    // =========================
+    // ADD CLIENT
+    // =========================
 
     window.addClient = function () {
 
-      const name = document.getElementById("clientName").value.trim();
+      const name =
+        document.getElementById(
+          "clientName"
+        ).value.trim();
 
-      const reviews = Number(
-        document.getElementById("reviewCount").value
-      );
+      const reviews =
+        Number(
+          document.getElementById(
+            "reviewCount"
+          ).value
+        );
 
-      if (name === "" || reviews <= 0) {
+      if (
+        name === "" ||
+        reviews <= 0
+      ) {
 
-        alert("Please Enter Valid Details");
+        alert(
+          "Please Enter Valid Details"
+        );
+
         return;
 
       }
 
       clients.unshift({
+
         id: Date.now(),
+
         name,
+
         reviews
+
       });
 
-      document.getElementById("clientName").value = "";
-      document.getElementById("reviewCount").value = "";
+      document.getElementById(
+        "clientName"
+      ).value = "";
+
+      document.getElementById(
+        "reviewCount"
+      ).value = "";
+
+      saveData();
 
       renderClients();
+
       updateDashboard();
 
-    }
+    };
+
+    // =========================
+    // DELETE CLIENT
+    // =========================
 
     window.deleteClient = function (id) {
 
-      clients = clients.filter(client => client.id !== id);
+      clients =
+        clients.filter(
+          client =>
+            client.id !== id
+        );
+
+      saveData();
 
       renderClients();
+
       updateDashboard();
 
-    }
+    };
+
+    // =========================
+    // UPDATE DASHBOARD
+    // =========================
 
     function updateDashboard() {
 
-      const totalReviews = clients.reduce(
-        (sum, client) => sum + client.reviews,
-        0
-      );
+      const totalReviews =
+        clients.reduce(
+          (sum, client) =>
+            sum + client.reviews,
+          0
+        );
 
-      const remaining = capacity - totalReviews;
+      const remaining =
+        capacity - totalReviews;
 
-      const usage = Math.min(
-        (totalReviews / capacity) * 100,
-        100
-      );
+      const usage =
+        Math.min(
+          (totalReviews / capacity) * 100,
+          100
+        );
 
-      document.getElementById("totalClients").innerText =
+      document.getElementById(
+        "totalClients"
+      ).innerText =
         clients.length;
 
-      document.getElementById("totalReviews").innerText =
+      document.getElementById(
+        "totalReviews"
+      ).innerText =
         totalReviews;
 
-      document.getElementById("remaining").innerText =
+      document.getElementById(
+        "remaining"
+      ).innerText =
         remaining;
 
-      document.getElementById("usagePercent").innerText =
+      document.getElementById(
+        "usagePercent"
+      ).innerText =
         usage.toFixed(1) + "%";
 
-      document.getElementById("progress").style.width =
+      document.getElementById(
+        "progress"
+      ).style.width =
         usage + "%";
 
     }
 
+    // =========================
+    // RENDER CLIENTS
+    // =========================
+
     function renderClients() {
 
       const clientList =
-        document.getElementById("clientList");
+        document.getElementById(
+          "clientList"
+        );
 
-      if (clients.length === 0) {
+      if (
+        clients.length === 0
+      ) {
 
         clientList.innerHTML = `
-        <div style="text-align:center;color:#64748b;padding:50px 0;">
+
+        <div style="
+          text-align:center;
+          color:#64748b;
+          padding:50px 0;
+        ">
           No Clients Added
         </div>
+
         `;
 
         return;
@@ -556,12 +701,22 @@
         <div class="client-item">
 
           <div>
-            <h4>${client.name}</h4>
-            <p>Reviews: ${client.reviews}</p>
+
+            <h4>
+              ${client.name}
+            </h4>
+
+            <p>
+              Reviews:
+              ${client.reviews}
+            </p>
+
           </div>
 
-          <button class="delete-btn"
-          onclick="deleteClient(${client.id})">
+          <button
+            class="delete-btn"
+            onclick="deleteClient(${client.id})"
+          >
 
             Delete
 
